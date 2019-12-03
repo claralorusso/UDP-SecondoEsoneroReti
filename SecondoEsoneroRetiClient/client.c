@@ -1,3 +1,4 @@
+
 #if defined WIN32
 #include <winsock.h>
 #else
@@ -8,7 +9,7 @@
 #endif
 #include <stdio.h>
 #include <string.h> /* for memset() */
-#include "function.h"
+#include "functionClient.h"
 #define ECHOMAX 255
 #define BUFSIZE 30
 void ErrorHandler(char *errorMessage) {
@@ -44,16 +45,16 @@ int main() {
 	// CREAZIONE DELLA SOCKET
 	if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
 		ErrorHandler("socket() failed");
-	// COSTRUZIONE DELL'INDIRIZZO DEL SERVER
 	//leggo da tastiera indirizzo e porta server
 	char s_name[BUFSIZE];
 	printf ("Inserisci l'indirizzo dell'host a cui connetterti\n");
 	scanf ("%s", s_name);
 	hostcl = gethostbyname(s_name);
+	char * nomehost = hostcl->h_name;
 	int port;
 	printf ("Inserisci la porta a cui connetterti\n");
 	scanf("%d", &port);
-
+	// COSTRUZIONE DELL'INDIRIZZO DEL SERVER
 	memset(&echoServAddr, 0, sizeof(echoServAddr));
 	echoServAddr.sin_family = PF_INET;
 	echoServAddr.sin_port = htons(port);
@@ -63,11 +64,10 @@ int main() {
 	scanf("%s", echoString);
 	if ((echoStringLen = strlen(echoString)) > ECHOMAX)
 		ErrorHandler("echo word too long");
-
 	// INVIO DELLA STRINGA ECHO AL SERVER
 	if (sendto(sock, echoString, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen)
 		ErrorHandler("sendto() sent different number of bytes than expected");
-	// RITORNO DELLA STRINGA ECHO
+	// RITORNO DELLA STRINGA "OK"
 	fromSize = sizeof(fromAddr);
 	respStringLen = recvfrom(sock, echoBuffer, ECHOMAX, 0, (struct sockaddr*)&fromAddr, &fromSize);
 
@@ -76,8 +76,9 @@ int main() {
 		exit(EXIT_FAILURE);
 	}
 	echoBuffer[respStringLen] = '\0';
-	printf("Received: %s\n", echoBuffer);
-	printf("Inserisci la stringa echo da inviare al server\n");
+	printf("Received: %s\n", echoBuffer); //risposta
+	//Rischiesta di inserimento della stringa per contare le vocali
+	printf("Inserisci nuova stringa\n");
 	scanf("%s", echoString);
 	char messaggio[ECHOMAX];
 	char parola[ECHOMAX];
@@ -85,16 +86,17 @@ int main() {
 	conta = count(echoString);
 	strcpy(parola,echoString);
 	sprintf(echoString,"%d",conta);
-
+	//invio del numero di vocali al server
 	if (sendto(sock, echoString, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen)
 		ErrorHandler("sendto() sent different number of bytes than expected");
 	sprintf(echoString, " %s", " ");
+int flag = 0;
 	int i=0;
-
-
 	while (i <= strlen(parola)){
 		if (messaggio[i]=='a'|| messaggio[i]== 'e'|| messaggio[i]== 'i'|| messaggio[i]== 'o'|| messaggio[i]== 'u'){
 			echoString[0] = messaggio[i];
+			flag = 1;
+			//invio di ogni vocale trovata
 			if (sendto(sock, echoString, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen){
 				ErrorHandler("sendto() sent different number of bytes than expected");
 			}
@@ -102,15 +104,20 @@ int main() {
 		strcpy(echoString, " ");
 		i++;
 	}
+	//caso in cui non ci siano vocali da convertire
+	if (flag == 0){
+		printf("Non ci sono vocali nella stringa inserita \n");
+	}
+
 	for(i = 0; i < conta;i++){
+		//ritorno delle vocali convertite in maiuscolo
 		fromSize = sizeof(fromAddr);
 		respStringLen = recvfrom(sock, echoBuffer, ECHOMAX, 0, (struct sockaddr*)&fromAddr, &fromSize);
-
 		if (echoServAddr.sin_addr.s_addr != fromAddr.sin_addr.s_addr) {
 			fprintf(stderr, "Error: received a packet from unknown source.\n");
 			exit(EXIT_FAILURE);
 		}
-		printf("%s", echoBuffer);
+		printf("Received: vocale convertita : %s \n", echoBuffer);
 	}
 	closesocket(sock);
 	ClearWinSock();

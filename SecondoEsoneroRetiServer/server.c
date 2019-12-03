@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "function.h"
+#include "functionServer.h"
 #endif
 #include <stdio.h>
 #include <string.h> /* for memset() */
@@ -55,34 +55,38 @@ int main() {
 	while(1) {
 		cliAddrLen = sizeof(echoClntAddr);
 		recvMsgSize = recvfrom(sock, echoBuffer, ECHOMAX, 0, (struct sockaddr*)&echoClntAddr, &cliAddrLen);
+		//acquisizione del nome host
 		host = gethostbyaddr((char*) &echoClntAddr.sin_addr,echoClntAddr.sin_port,echoClntAddr.sin_family);
 		char* namehost = host->h_name;
 		printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr));
 		printf("Received: %s dal client con nomehost: %s \n", echoBuffer, namehost);
-		// RINVIA LA STRINGA ECHO AL CLIENT
+		// RINVIA LA STRINGA "OK" AL CLIENT
 		strcpy(echoBuffer,"OK");
 		if (sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *)&echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize){
 			ErrorHandler("sendto() sent different number of bytes than expected");
 		}
+		//ricezione del numero di vocali
 		recvMsgSize = recvfrom(sock, echoBuffer, ECHOMAX, 0, (struct sockaddr*)&echoClntAddr, &cliAddrLen);
-		printf("Received:%s \n", echoBuffer);
+		printf("Received: numero di vocali della stringa  %s \n", echoBuffer);
 		int num = 0;
 		char* c = echoBuffer;
 		num = atol(c);
 		char vettore[ECHOMAX];
 		strcpy(echoBuffer," ");
 		for(int i=0; i < num; i++){
+			//ricezione delle vocali trovate nella parola dal client
 			recvMsgSize = recvfrom(sock, echoBuffer, ECHOMAX, 0, (struct sockaddr*)&echoClntAddr, &cliAddrLen);
 			vettore[i] = echoBuffer[0];
-			printf("%c", vettore[i]);
+			printf("Received: vocale da convertire : %c \n", vettore[i]);
 
 		}
 
 		for (int i=0; i< num;i++){
-			echoBuffer[0]= converti(vettore[i]);
+			echoBuffer[0]= convert(vettore[i]);
+			//invio delle vocali convertite al client
 			if (sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *)&echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize){
-						ErrorHandler("sendto() sent different number of bytes than expected");
-					}
+				ErrorHandler("sendto() sent different number of bytes than expected");
+			}
 
 		}
 	}

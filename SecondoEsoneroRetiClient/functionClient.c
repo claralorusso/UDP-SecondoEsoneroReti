@@ -1,5 +1,6 @@
 #include <string.h>
 
+//funzione che conta il numero di vocali della stringa passata come parametro
 int count(char* c){
 	int countv = 0;
 	int i;
@@ -25,28 +26,4 @@ int count(char* c){
 	}
 return countv;
 }
-
-char converti(char c){
-		    switch (c)
-		    {
-		    case 'a':
-		    	return c = 'A';
-		    	break;
-		    case 'e':
-		    	return c = 'E';
-		    	break;
-		    case 'i':
-		    	return c = 'I';
-		    	break;
-		    case 'o':
-		    	return c = 'O';
-		    	break;
-		    case 'u':
-		    	return c = 'U';
-		    	break;
-		    }
-
-return 0;
-}
-
 

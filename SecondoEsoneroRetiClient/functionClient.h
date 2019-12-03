@@ -5,10 +5,10 @@
  *      Author: Clara Lorusso
  */
 
-#ifndef FUNCTION_H_
-#define FUNCTION_H_
+#ifndef FUNCTIONCLIENT_H_
+#define FUNCTIONCLIENT_H_
 
 int count(char*);
-char converti(char);
 
-#endif /* FUNCTION_H_ */
+
+#endif /* FUNCTIONCLIENT_H_ */
