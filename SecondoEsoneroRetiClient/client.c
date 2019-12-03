@@ -80,23 +80,37 @@ int main() {
 	printf("Inserisci la stringa echo da inviare al server\n");
 	scanf("%s", echoString);
 	char messaggio[ECHOMAX];
+	char parola[ECHOMAX];
 	strcpy(messaggio,echoString);
 	conta = count(echoString);
+	strcpy(parola,echoString);
 	sprintf(echoString,"%d",conta);
+
 	if (sendto(sock, echoString, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen)
 		ErrorHandler("sendto() sent different number of bytes than expected");
+	sprintf(echoString, " %s", " ");
 	int i=0;
-	while (i < conta){
-		if (messaggio[i]=='a'|| messaggio[i]== 'e'|| messaggio[i]== 'i'|| messaggio[i]== 'o'|| messaggio[i]== 'u')
-			echoString[i] = messaggio[i];
-			printf("%c", messaggio[i]);
-			system("pause");
-			if (sendto(sock, echoString, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen)
-				ErrorHandler("sendto() sent different number of bytes than expected");
-			printf("%c", echoString[i]);
-			strcpy(echoString, " ");
-			i++;
 
+
+	while (i <= strlen(parola)){
+		if (messaggio[i]=='a'|| messaggio[i]== 'e'|| messaggio[i]== 'i'|| messaggio[i]== 'o'|| messaggio[i]== 'u'){
+			echoString[0] = messaggio[i];
+			if (sendto(sock, echoString, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen){
+				ErrorHandler("sendto() sent different number of bytes than expected");
+			}
+		}
+		strcpy(echoString, " ");
+		i++;
+	}
+	for(i = 0; i < conta;i++){
+		fromSize = sizeof(fromAddr);
+		respStringLen = recvfrom(sock, echoBuffer, ECHOMAX, 0, (struct sockaddr*)&fromAddr, &fromSize);
+
+		if (echoServAddr.sin_addr.s_addr != fromAddr.sin_addr.s_addr) {
+			fprintf(stderr, "Error: received a packet from unknown source.\n");
+			exit(EXIT_FAILURE);
+		}
+		printf("%s", echoBuffer);
 	}
 	closesocket(sock);
 	ClearWinSock();

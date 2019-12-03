@@ -26,4 +26,27 @@ int count(char* c){
 return countv;
 }
 
+char converti(char c){
+		    switch (c)
+		    {
+		    case 'a':
+		    	return c = 'A';
+		    	break;
+		    case 'e':
+		    	return c = 'E';
+		    	break;
+		    case 'i':
+		    	return c = 'I';
+		    	break;
+		    case 'o':
+		    	return c = 'O';
+		    	break;
+		    case 'u':
+		    	return c = 'U';
+		    	break;
+		    }
+
+return c;
+}
+
 

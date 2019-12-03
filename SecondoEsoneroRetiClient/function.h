@@ -9,5 +9,6 @@
 #define FUNCTION_H_
 
 int count(char*);
+char converti(char);
 
 #endif /* FUNCTION_H_ */
