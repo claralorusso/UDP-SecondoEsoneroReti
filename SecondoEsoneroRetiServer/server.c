@@ -6,7 +6,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "functionServer.h"
 #endif
 #include <stdio.h>
 #include <string.h> /* for memset() */
@@ -20,6 +19,7 @@ void ClearWinSock() {
 	WSACleanup();
 #endif
 }
+#include "functionServer.h"
 
 int main() {
 #if defined WIN32
@@ -34,7 +34,7 @@ int main() {
 	struct sockaddr_in echoServAddr;
 	struct sockaddr_in echoClntAddr;
 	struct hostent *host;
-	unsigned int cliAddrLen;
+	int cliAddrLen;
 	char echoBuffer[ECHOMAX];
 	int recvMsgSize;
 	// CREAZIONE DELLA SOCKET

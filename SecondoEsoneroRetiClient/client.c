@@ -33,8 +33,8 @@ int main() {
 	int sock;
 	struct sockaddr_in echoServAddr;
 	struct sockaddr_in fromAddr;
-	struct hostent *hostcl;
-	unsigned int fromSize;
+	struct hostent *ipserv;
+	int fromSize;
 	char echoString[ECHOMAX];
 	char echoBuffer[ECHOMAX];
 	int echoStringLen;
@@ -49,16 +49,22 @@ int main() {
 	char s_name[BUFSIZE];
 	printf ("Inserisci l'indirizzo dell'host a cui connetterti\n");
 	scanf ("%s", s_name);
-	hostcl = gethostbyname(s_name);
-	char * nomehost = hostcl->h_name;
+	ipserv=gethostbyname(s_name);
+	if(ipserv==NULL){
+		printf("Gethostbyname fallito\n");
+		system("PAUSE");
+		exit(1);
+	}
+	struct in_addr *ina = (struct in_addr*) ipserv->h_addr_list[0];
 	int port;
+
 	printf ("Inserisci la porta a cui connetterti\n");
 	scanf("%d", &port);
 	// COSTRUZIONE DELL'INDIRIZZO DEL SERVER
 	memset(&echoServAddr, 0, sizeof(echoServAddr));
 	echoServAddr.sin_family = PF_INET;
 	echoServAddr.sin_port = htons(port);
-	echoServAddr.sin_addr.s_addr = inet_addr(s_name);
+	echoServAddr.sin_addr.s_addr = inet_addr(inet_ntoa(*ina));
 	//inserimento della stringa da inviare al server
 	printf("Inserisci la prima stringa echo da inviare al server\n");
 	scanf("%s", echoString);
@@ -90,7 +96,7 @@ int main() {
 	if (sendto(sock, echoString, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen)
 		ErrorHandler("sendto() sent different number of bytes than expected");
 	sprintf(echoString, " %s", " ");
-int flag = 0;
+	int flag = 0;
 	int i=0;
 	while (i <= strlen(parola)){
 		if (messaggio[i]=='a'|| messaggio[i]== 'e'|| messaggio[i]== 'i'|| messaggio[i]== 'o'|| messaggio[i]== 'u'){
